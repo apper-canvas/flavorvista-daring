@@ -437,9 +437,10 @@ export default function Home() {
               </p>
               <div className="mt-4 flex text-yellow-400">
                 {[...Array(5)].map((_, i) => (
-                  <StarIcon key={i} className="w-5 h-5" />
+                  <span key={i}>{getIcon('star')({ className: "w-5 h-5" })}</span>
                 ))}
               </div>
+              
             </div>
             
             {/* Testimonial 2 */}
@@ -460,7 +461,7 @@ export default function Home() {
               </p>
               <div className="mt-4 flex text-yellow-400">
                 {[...Array(5)].map((_, i) => (
-                  <StarIcon key={i} className={`w-5 h-5 ${i === 4 ? 'text-surface-300 dark:text-surface-600' : ''}`} />
+                  <span key={i}>{getIcon('star')({ className: `w-5 h-5 ${i === 4 ? 'text-surface-300 dark:text-surface-600' : ''}` })}</span>
                 ))}
               </div>
             </div>
@@ -483,7 +484,7 @@ export default function Home() {
               </p>
               <div className="mt-4 flex text-yellow-400">
                 {[...Array(5)].map((_, i) => (
-                  <StarIcon key={i} className="w-5 h-5" />
+                  <span key={i}>{getIcon('star')({ className: "w-5 h-5" })}</span>
                 ))}
               </div>
             </div>
