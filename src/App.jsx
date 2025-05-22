@@ -1,9 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getIcon } from './utils/iconUtils';
-import { ToastContainer, toast } from 'react-toastify';
 import Home from './pages/Home';
 
 // Auth Components
@@ -11,6 +10,8 @@ const Login = () => {
   const [credentials, setCredentials] = useState({ username: '', password: '' });
   const [showBiometric, setShowBiometric] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [loginMethod, setLoginMethod] = useState('username'); // 'username' or 'phone'
+  const [phoneVerification, setPhoneVerification] = useState({ show: false, phone: '', otp: ['', '', '', ''] });
   
   const handleLogin = (e) => {
     e.preventDefault();
@@ -22,6 +23,81 @@ const Login = () => {
       window.location.href = '/dashboard';
     }, 1000);
   };
+
+  const handlePhoneLogin = (e) => {
+    e.preventDefault();
+    if (!phoneVerification.phone) {
+      toast.error("Please enter a valid phone number");
+      return;
+    }
+    
+    setLoading(true);
+    // Simulate sending OTP
+    setTimeout(() => {
+      setLoading(false);
+      setPhoneVerification({ ...phoneVerification, show: true });
+      toast.success("OTP sent to your phone number");
+    }, 1000);
+  };
+  
+  const handleOtpChange = (index, value) => {
+    // Only allow digits
+    if (value && !/^\d+$/.test(value)) return;
+    
+    const newOtp = [...phoneVerification.otp];
+    newOtp[index] = value;
+    setPhoneVerification({ ...phoneVerification, otp: newOtp });
+    
+    // Auto-focus next input
+    if (value && index < 3) {
+      document.getElementById(`otp-${index + 1}`).focus();
+    }
+  };
+  
+  const handleVerifyOtp = () => {
+    const otpValue = phoneVerification.otp.join('');
+    if (otpValue.length !== 4) {
+      toast.error("Please enter a valid 4-digit OTP");
+      return;
+    }
+    
+    setLoading(true);
+    // Simulate OTP verification
+    setTimeout(() => {
+      setLoading(false);
+      localStorage.setItem('isAuthenticated', 'true');
+      window.location.href = '/dashboard';
+    }, 1000);
+  };
+  
+  const PhoneLogin = () => (
+    <form onSubmit={handlePhoneLogin}>
+      <div className="mb-6">
+        <label className="block text-gray-700 text-sm font-medium mb-2">Phone Number</label>
+        <input 
+          type="tel" 
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" 
+          placeholder="Enter your registered phone number"
+          value={phoneVerification.phone}
+          onChange={(e) => setPhoneVerification({...phoneVerification, phone: e.target.value})}
+          required
+        />
+      </div>
+      
+      <button 
+        type="submit" 
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition duration-300 flex justify-center items-center"
+        disabled={loading}
+      >
+        {loading ? (
+          <svg className="animate-spin h-5 w-5 mr-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        ) : 'Send Verification Code'}
+      </button>
+    </form>
+  );
   
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-900 to-blue-700 p-4">
@@ -31,47 +107,124 @@ const Login = () => {
           <p className="text-gray-600 mt-2">Welcome to your secure banking portal</p>
         </div>
         
-        <form onSubmit={handleLogin}>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-medium mb-2">Username</label>
-            <input 
-              type="text" 
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" 
-              placeholder="Enter your username"
-              value={credentials.username}
-              onChange={(e) => setCredentials({...credentials, username: e.target.value})}
-              required
-            />
-          </div>
-          
-          <div className="mb-6">
-            <label className="block text-gray-700 text-sm font-medium mb-2">Password</label>
-            <input 
-              type="password" 
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" 
-              placeholder="Enter your password"
-              value={credentials.password}
-              onChange={(e) => setCredentials({...credentials, password: e.target.value})}
-              required
-            />
-            <div className="flex justify-end mt-2">
-              <a href="#" className="text-sm text-blue-600 hover:text-blue-800">Forgot password?</a>
+        {/* Login Method Toggle */}
+        <div className="flex border border-gray-300 rounded-lg overflow-hidden mb-6">
+          <button
+            type="button"
+            className={`flex-1 py-2 text-center font-medium ${loginMethod === 'username' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}
+            onClick={() => setLoginMethod('username')}
+          >
+            Username
+          </button>
+          <button
+            type="button"
+            className={`flex-1 py-2 text-center font-medium ${loginMethod === 'phone' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}
+            onClick={() => setLoginMethod('phone')}
+          >
+            Phone Number
+          </button>
+        </div>
+
+        {/* Phone Verification Modal */}
+        {phoneVerification.show && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-8 max-w-sm w-full">
+              <div className="text-center">
+                <div className="w-16 h-16 mx-auto mb-4 text-blue-600">
+                  {getIcon('Shield', { size: 64 })}
+                </div>
+                <h3 className="text-xl font-bold mb-2">Enter Verification Code</h3>
+                <p className="text-gray-600 mb-6">
+                  A 4-digit code has been sent to {phoneVerification.phone}
+                </p>
+                
+                <div className="flex justify-center gap-2 mb-6">
+                  {[0, 1, 2, 3].map((index) => (
+                    <input
+                      key={index}
+                      id={`otp-${index}`}
+                      type="text"
+                      maxLength="1"
+                      className="w-12 h-12 text-center text-xl font-bold border border-gray-300 rounded-lg"
+                      value={phoneVerification.otp[index]}
+                      onChange={(e) => handleOtpChange(index, e.target.value)}
+                    />
+                  ))}
+                </div>
+                
+                <button 
+                  onClick={handleVerifyOtp}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition duration-300 flex justify-center items-center mb-4"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <svg className="animate-spin h-5 w-5 mr-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  ) : 'Verify'}
+                </button>
+                
+                <div className="text-sm text-gray-600">
+                  Didn't receive the code? <button className="text-blue-600 hover:text-blue-800">Resend</button>
+                </div>
+                
+                <button 
+                  onClick={() => setPhoneVerification({ ...phoneVerification, show: false })}
+                  className="mt-6 text-blue-600 hover:text-blue-800"
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
-          
-          <button 
-            type="submit" 
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition duration-300 flex justify-center items-center"
-            disabled={loading}
-          >
-            {loading ? (
-              <svg className="animate-spin h-5 w-5 mr-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-            ) : 'Sign In'}
-          </button>
-        </form>
+        )}
+        
+        {loginMethod === 'username' ? (
+          <form onSubmit={handleLogin}>
+            <div className="mb-4">
+              <label className="block text-gray-700 text-sm font-medium mb-2">Username</label>
+              <input 
+                type="text" 
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" 
+                placeholder="Enter your username"
+                value={credentials.username}
+                onChange={(e) => setCredentials({...credentials, username: e.target.value})}
+                required
+              />
+            </div>
+            
+            <div className="mb-6">
+              <label className="block text-gray-700 text-sm font-medium mb-2">Password</label>
+              <input 
+                type="password" 
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" 
+                placeholder="Enter your password"
+                value={credentials.password}
+                onChange={(e) => setCredentials({...credentials, password: e.target.value})}
+                required
+              />
+              <div className="flex justify-end mt-2">
+                <a href="#" className="text-sm text-blue-600 hover:text-blue-800">Forgot password?</a>
+              </div>
+            </div>
+            
+            <button 
+              type="submit" 
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition duration-300 flex justify-center items-center"
+              disabled={loading}
+            >
+              {loading ? (
+                <svg className="animate-spin h-5 w-5 mr-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              ) : 'Sign In'}
+            </button>
+          </form>
+        ) : (
+          <PhoneLogin />
+        )}
         
         <div className="mt-6">
           <button 

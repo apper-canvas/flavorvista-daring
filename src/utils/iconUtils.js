@@ -1,10 +1,17 @@
 import React from 'react';
 
-export const getIcon = (iconName) => {
+export const getIcon = (iconName, options = {}) => {
+  const size = options.size || 24;
+  const color = options.color || 'currentColor';
+  
   // Handle null/undefined case
   if (!iconName) {
     console.warn('No icon name provided, using Smile as fallback');
-    return LucideIcons.Smile;
+    return (<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" x2="9.01" y1="9" y2="9"/><line x1="15" x2="15.01" y1="9" y2="9"/></svg>);
+  }
+  
+  // Define icon components
+  const icons = {
     // Generic Icons
     User: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
     UserCircle: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/></svg>,
@@ -37,44 +44,20 @@ export const getIcon = (iconName) => {
     MessageSquare: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>,
     PhoneCall: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>,
     Star: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
-  if (iconName.includes('-')) {
-    // Handle kebab-case with numbers (bar-chart-2 → BarChart2)
-    componentName = iconName
-      .split('-')
-      .map(part => {
-        // Check if the part is just a number and attach it without capitalization
-        if (/^\d+$/.test(part)) {
-          return part;
-        }
-        // Otherwise capitalize the first letter
-        return part.charAt(0).toUpperCase() + part.slice(1);
-      })
-      .join('');
-  } else {
-    // For single word icons, just capitalize first letter
-    componentName = iconName.charAt(0).toUpperCase() + iconName.slice(1);
+    // Additional icons specifically for phone login
+    Phone: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>,
+    Smartphone: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>,
+    Send: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>,
+  };
+
+  // Convert iconName to match our object keys (capitalize first letter)
+  const formattedIconName = iconName.charAt(0).toUpperCase() + iconName.slice(1).toLowerCase();
+  
+  // Return the requested icon or fallback to Smile
+  if (icons[formattedIconName]) {
+    return icons[formattedIconName];
   }
   
-  // Step 3: Check if we have a valid component after transformation
-  if (LucideIcons[componentName] && typeof LucideIcons[componentName] === 'function') {
-    return LucideIcons[componentName];
-  }
-  
-  // Step 4: Advanced retry - try various transformations if needed
-  // Try removing spaces and underscores (user_circle → UserCircle)
-  const noSpaces = componentName.replace(/[\s_]/g, '');
-  if (LucideIcons[noSpaces] && typeof LucideIcons[noSpaces] === 'function') {
-    return LucideIcons[noSpaces];
-  }
-  
-  // Try inserting number without space (barChart2 → BarChart2)
-  const numberPattern = /([A-Za-z])(\d+)$/;
-  const withNumber = componentName.replace(numberPattern, '$1$2');
-  if (LucideIcons[withNumber] && typeof LucideIcons[withNumber] === 'function') {
-    return LucideIcons[withNumber];
-  }
-  
-  // Fallback with console warning for debugging
-  console.warn(`Icon "${iconName}" not found in Lucide (tried "${componentName}"), using Smile instead`);
-  return LucideIcons.Smile;
+  console.warn(`Icon "${iconName}" not found, using Smile as fallback`);
+  return icons.Smile || (<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" x2="9.01" y1="9" y2="9"/><line x1="15" x2="15.01" y1="9" y2="9"/></svg>);
 };
