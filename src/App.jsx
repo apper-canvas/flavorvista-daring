@@ -7,7 +7,7 @@ import Home from './pages/Home';
 
 // Auth Components
 const Login = () => {
-  const [credentials, setCredentials] = useState({ username: '', password: '' });
+  const [credentials, setCredentials] = useState({ username: '', password: '', phone: '' });
   const [showBiometric, setShowBiometric] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loginMethod, setLoginMethod] = useState('username'); // 'username' or 'phone'
@@ -155,6 +155,118 @@ const Login = () => {
                 <button 
                   onClick={handleVerifyOtp}
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition duration-300 flex justify-center items-center mb-4"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <svg className="animate-spin h-5 w-5 mr-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  ) : 'Verify'}
+                </button>
+                
+                <div className="text-sm text-gray-600">
+                  Didn't receive the code? <button className="text-blue-600 hover:text-blue-800">Resend</button>
+                </div>
+                
+                <button 
+                  onClick={() => setPhoneVerification({ ...phoneVerification, show: false })}
+                  className="mt-6 text-blue-600 hover:text-blue-800"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {loginMethod === 'username' ? (
+        {/* Login Method Toggle */}
+        <div className="flex border border-gray-300 rounded-lg overflow-hidden mb-6">
+          <button
+            type="button"
+            className={`flex-1 py-2 text-center font-medium ${loginMethod === 'username' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}
+            onClick={() => setLoginMethod('username')}
+          >
+            Username
+          </button>
+          <button
+            type="button"
+            className={`flex-1 py-2 text-center font-medium ${loginMethod === 'phone' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}
+            onClick={() => setLoginMethod('phone')}
+          >
+            Phone Number
+          </button>
+        </div>
+
+        {/* Phone Verification Modal */}
+        {phoneVerification.show && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-8 max-w-sm w-full">
+              <div className="text-center">
+                <div className="w-16 h-16 mx-auto mb-4 text-blue-600">
+                  {getIcon('Shield', { size: 64 })}
+                </div>
+                <h3 className="text-xl font-bold mb-2">Enter Verification Code</h3>
+                <p className="text-gray-600 mb-6">
+                  A 4-digit code has been sent to {phoneVerification.phone}
+                </p>
+                
+                <div className="flex justify-center gap-2 mb-6">
+                  {[0, 1, 2, 3].map((index) => (
+                    <input
+                      key={index}
+                      id={`otp-${index}`}
+                      type="text"
+                      maxLength="1"
+                      className="w-12 h-12 text-center text-xl font-bold border border-gray-300 rounded-lg"
+                      value={phoneVerification.otp[index]}
+                      onChange={(e) => handleOtpChange(index, e.target.value)}
+                    />
+                  ))}
+                </div>
+                
+                <button 
+                  onClick={handleVerifyOtp}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition duration-300 flex justify-center items-center mb-4"
+        ) : (
+          <PhoneLogin />
+        )}
+        
+        <div className="mt-6">
+          <button 
+            onClick={() => setShowBiometric(true)}
+            className="w-full border border-blue-600 text-blue-600 font-medium py-3 px-4 rounded-lg transition duration-300 hover:bg-blue-50 flex items-center justify-center"
+          >
+            <span className="mr-2">{getIcon('Fingerprint')}</span>
+            Sign in with Biometrics
+          </button>
+        </div>
+        
+        {showBiometric && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-8 max-w-sm w-full">
+              <div className="text-center">
+                <div className="w-16 h-16 mx-auto mb-4 text-blue-600">
+                  {getIcon('Fingerprint', { size: 64 })}
+                </div>
+                <h3 className="text-xl font-bold mb-2">Biometric Authentication</h3>
+                <p className="text-gray-600 mb-6">Place your finger on the scanner to verify your identity</p>
+                <div className="animate-pulse text-blue-600 mb-6">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-16 h-16 mx-auto">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                  </svg>
+                </div>
+                <button 
+                  onClick={() => setShowBiometric(false)}
+                  className="text-blue-600 hover:text-blue-800"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
                   disabled={loading}
                 >
                   {loading ? (
