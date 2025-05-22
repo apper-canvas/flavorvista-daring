@@ -1,356 +1,451 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { toast } from 'react-toastify';
+import React, { useState, useEffect } from 'react';
 import { getIcon } from '../utils/iconUtils';
+import { BankingFeature } from '../components/MainFeature';
 import MainFeature from '../components/MainFeature';
-
-// Static data for demo purposes
-const recipeCategories = [
-  {
-    id: 1,
-    name: 'Breakfast',
-    description: 'Start your day right',
-    icon: 'coffee',
-    image: 'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80'
-  },
-  {
-    id: 2,
-    name: 'Lunch',
-    description: 'Midday favorites',
-    icon: 'utensils',
-    image: 'https://images.unsplash.com/photo-1547592180-85f173990554?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80'
-  },
-  {
-    id: 3,
-    name: 'Dinner',
-    description: 'Evening delights',
-    icon: 'soup',
-    image: 'https://images.unsplash.com/photo-1559847844-5315695dadae?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80'
-  },
-  {
-    id: 4,
-    name: 'Desserts',
-    description: 'Sweet treats',
-    icon: 'cake',
-    image: 'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80'
-  },
-  {
-    id: 5,
-    name: 'Healthy',
-    description: 'Nutritious choices',
-    icon: 'salad',
-    image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80'
-  },
-  {
-    id: 6,
-    name: 'Vegetarian',
-    description: 'Plant-based goodness',
-    icon: 'leaf',
-    image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80'
-  }
-];
-
-const featuredRecipes = [
-  {
-    id: 1,
-    title: 'Classic Margherita Pizza',
-    description: 'A traditional Italian pizza with fresh mozzarella, tomatoes, and basil.',
-    image: 'https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80',
-    prepTime: 30,
-    cookTime: 15,
-    servings: 4,
-    category: 'Dinner',
-    author: 'Chef Maria',
-    rating: 4.8,
-    reviewCount: 128
-  },
-  {
-    id: 2,
-    title: 'Avocado Toast with Poached Eggs',
-    description: 'Creamy avocado spread on artisanal bread topped with perfectly poached eggs.',
-    image: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80',
-    prepTime: 15,
-    cookTime: 10,
-    servings: 2,
-    category: 'Breakfast',
-    author: 'Nutritionist Sarah',
-    rating: 4.6,
-    reviewCount: 95
-  },
-  {
-    id: 3,
-    title: 'Thai Green Curry',
-    description: 'Aromatic Thai curry with coconut milk, vegetables, and your choice of protein.',
-    image: 'https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80',
-    prepTime: 20,
-    cookTime: 25,
-    servings: 4,
-    category: 'Dinner',
-    author: 'Chef Anan',
-    rating: 4.9,
-    reviewCount: 212
-  },
-  {
-    id: 4,
-    title: 'Chocolate Lava Cake',
-    description: 'Decadent chocolate cake with a molten center, served with vanilla ice cream.',
-    image: 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80',
-    prepTime: 15,
-    cookTime: 12,
-    servings: 4,
-    category: 'Desserts',
-    author: 'Pastry Chef Jean',
-    rating: 4.7,
-    reviewCount: 156
-  }
-];
-
-// Components
-const HeroSection = () => {
-  return (
-    <section className="relative">
-      <div 
-        className="absolute inset-0 bg-gradient-to-r from-primary/90 to-accent/90 mix-blend-multiply"
-        aria-hidden="true"
-      ></div>
-      
-      <div 
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ 
-          backgroundImage: `url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-1.2.1&auto=format&fit=crop&w=2100&q=80')`,
-          zIndex: -1
-        }}
-      ></div>
-      
-      <div className="relative max-w-7xl mx-auto py-24 px-4 sm:py-32 sm:px-6 lg:px-8">
-        <motion.h1 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl text-shadow-lg"
-        >
-          Share Your <span className="text-yellow-300">Culinary Journey</span>
-        </motion.h1>
-        
-        <motion.p 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="mt-6 max-w-lg text-xl text-white text-shadow"
-        >
-          Discover, create, and share amazing recipes with a community of food enthusiasts.
-        </motion.p>
-        
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="mt-10 flex flex-col sm:flex-row gap-4"
-        >
-          <a 
-            href="#explore" 
-            className="btn bg-white text-primary hover:bg-surface-100 focus:ring-white"
-          >
-            Explore Recipes
-          </a>
-          <a 
-            href="#create" 
-            className="btn bg-primary-dark text-white border border-white hover:bg-primary-dark/90 focus:ring-white"
-          >
-            Create Recipe
-          </a>
-        </motion.div>
-      </div>
-    </section>
-  );
-};
-
-const CategoryCard = ({ category }) => {
-  const IconComponent = getIcon(category.icon);
+import { motion } from 'framer-motion';
+// Account card component
+const AccountCard = ({ account, onViewDetails }) => {
+  const { type, number, balance, currency } = account;
   
-  return (
-    <motion.div 
-      whileHover={{ y: -5, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
-      className="group card overflow-hidden"
-    >
-      <div className="h-40 overflow-hidden relative">
-        <img 
-          src={category.image} 
-          alt={category.name} 
-          className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-        <div className="absolute bottom-0 left-0 p-4">
-          <h3 className="text-xl font-bold text-white">{category.name}</h3>
-          <p className="text-white/80 text-sm">{category.description}</p>
-        </div>
-      </div>
-      <div className="p-4 flex justify-between items-center">
-        <div className="flex items-center">
-          <IconComponent className="h-5 w-5 text-primary mr-2" />
-          <span className="text-surface-600 dark:text-surface-300">{category.name}</span>
-        </div>
-        <a 
-          href={`#${category.name.toLowerCase()}`}
-          className="text-primary dark:text-primary-light hover:underline text-sm font-medium"
-        >
-          View Recipes
-        </a>
-      </div>
-    </motion.div>
-  );
-};
-
-const RecipeCard = ({ recipe }) => {
-  const [isSaved, setIsSaved] = useState(false);
-  const ClockIcon = getIcon('clock');
-  const UsersIcon = getIcon('users');
-  const StarIcon = getIcon('star');
-  const BookmarkIcon = getIcon('bookmark');
-  
-  const handleSaveRecipe = () => {
-    setIsSaved(!isSaved);
-    if (!isSaved) {
-      toast.success(`Recipe "${recipe.title}" saved to your collection!`);
-    } else {
-      toast.info(`Recipe "${recipe.title}" removed from your collection.`);
+  const getTypeIcon = (type) => {
+    switch(type.toLowerCase()) {
+      case 'savings':
+        return getIcon('PiggyBank', { size: 20 });
+      case 'current':
+        return getIcon('Wallet', { size: 20 });
+      case 'loan':
+        return getIcon('Building', { size: 20 });
+      case 'gold loan':
+        return getIcon('Star', { size: 20 });
+      default:
+        return getIcon('CreditCard', { size: 20 });
     }
   };
-  
+
   return (
-    <motion.div 
-      whileHover={{ y: -5 }}
-      className="card group overflow-hidden"
-    >
-      <div className="relative h-48 overflow-hidden">
-        <img 
-          src={recipe.image} 
-          alt={recipe.title}
-          className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300"
-        />
-        <div className="absolute top-2 right-2">
-          <button 
-            onClick={handleSaveRecipe}
-            className={`p-2 rounded-full ${isSaved ? 'bg-primary text-white' : 'bg-white/80 text-surface-700'}`}
-            aria-label={isSaved ? "Unsave recipe" : "Save recipe"}
-          >
-            <BookmarkIcon className="h-5 w-5" />
-          </button>
+    <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-100 hover:shadow-md transition-shadow">
+      <div className="flex justify-between items-start mb-3">
+        <div className="flex items-center">
+          <div className="p-2 rounded-full bg-blue-50 text-blue-600 mr-3">
+            {getTypeIcon(type)}
+          </div>
+          <div>
+            <h3 className="font-medium text-gray-900">{type} Account</h3>
+            <p className="text-xs text-gray-500">•••• {number.slice(-4)}</p>
+          </div>
         </div>
-        <div className="absolute top-2 left-2">
-          <span className="bg-primary text-white text-xs px-2 py-1 rounded-full">
-            {recipe.category}
-          </span>
-        </div>
+        <button 
+          onClick={() => onViewDetails(account)}
+          className="text-blue-600 hover:text-blue-800"
+        >
+          {getIcon('ChevronRight', { size: 18 })}
+        </button>
       </div>
       
-      <div className="p-4">
-        <h3 className="text-lg font-bold text-surface-900 dark:text-white mb-2 line-clamp-1">
-          {recipe.title}
-        </h3>
-        
-        <p className="text-surface-600 dark:text-surface-300 text-sm mb-4 line-clamp-2">
-          {recipe.description}
-        </p>
-        
-        <div className="flex flex-wrap gap-3 mb-4">
-          <div className="flex items-center text-xs text-surface-600 dark:text-surface-400">
-            <ClockIcon className="h-4 w-4 mr-1" />
-            <span>{recipe.prepTime + recipe.cookTime} min</span>
-          </div>
-          
-          <div className="flex items-center text-xs text-surface-600 dark:text-surface-400">
-            <UsersIcon className="h-4 w-4 mr-1" />
-            <span>{recipe.servings} servings</span>
-          </div>
-          
-          <div className="flex items-center text-xs">
-            <StarIcon className="h-4 w-4 mr-1 text-yellow-400" />
-            <span className="font-medium">{recipe.rating}</span>
-            <span className="text-surface-500 dark:text-surface-400 ml-1">({recipe.reviewCount})</span>
-          </div>
-        </div>
-        
-        <div className="flex items-center justify-between mt-auto pt-2 border-t border-surface-200 dark:border-surface-700">
-          <div className="text-xs text-surface-600 dark:text-surface-400">
-            By {recipe.author}
-          </div>
-          
-          <a 
-            href={`#recipe/${recipe.id}`}
-            className="text-primary dark:text-primary-light hover:underline text-sm font-medium"
-          >
-            View Recipe
-          </a>
-        </div>
+      <div className="mt-2">
+        <span className="text-xs text-gray-500">Available Balance</span>
+        <p className="text-xl font-bold text-gray-900">{currency} {balance.toLocaleString()}</p>
       </div>
-    </motion.div>
+    </div>
   );
 };
 
-export default function Home() {
-  const [visibleRecipes, setVisibleRecipes] = useState(4);
-  const [activeCategory, setActiveCategory] = useState('All');
-  
-  const handleLoadMore = () => {
-    // In a real app, this would fetch more recipes from an API
-    toast.info("Loading more recipes would fetch from an API in a real app.");
-    setVisibleRecipes(prevCount => prevCount + 4);
+// Transaction item component
+const TransactionItem = ({ transaction }) => {
+  const { title, amount, date, type, category } = transaction;
+
+  const getCategoryIcon = (category) => {
+    switch(category.toLowerCase()) {
+      case 'transfer':
+        return getIcon('ArrowLeftRight', { size: 18 });
+      case 'deposit':
+        return getIcon('TrendingUp', { size: 18 });
+      case 'withdrawal':
+        return getIcon('TrendingDown', { size: 18 });
+      case 'payment':
+        return getIcon('CreditCard', { size: 18 });
+      case 'loan':
+        return getIcon('Building', { size: 18 });
+      default:
+        return getIcon('DollarSign', { size: 18 });
+    }
   };
-  
-  const handleCategoryFilter = (category) => {
-    setActiveCategory(category);
-    // In a real app, this would filter recipes by category
-    toast.info(`Filtering recipes by ${category} category.`);
-  };
-  
-  // Get unique categories from recipes
-  const categories = ['All', ...new Set(featuredRecipes.map(recipe => recipe.category))];
-  
-  const ChevronDown = getIcon('chevron-down');
-  
+
   return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
-      <HeroSection />
+    <div className="flex items-center justify-between py-3 border-b border-gray-100">
+      <div className="flex items-center">
+        <div className={`p-2 rounded-full mr-3 ${
+          type === 'credit' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'
+        }`}>
+          {getCategoryIcon(category)}
+        </div>
+        <div>
+          <h4 className="font-medium text-gray-900">{title}</h4>
+          <p className="text-xs text-gray-500">{new Date(date).toLocaleDateString()}</p>
+        </div>
+      </div>
+      <p className={`font-medium ${
+        type === 'credit' ? 'text-green-600' : 'text-red-600'
+      }`}>
+        {type === 'credit' ? '+' : '-'} ₹{amount.toLocaleString()}
+      </p>
+    </div>
+  );
+};
+
+// Home (Dashboard) component
+const Home = () => {
+  const [accounts, setAccounts] = useState([]);
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showAccountDetails, setShowAccountDetails] = useState(false);
+  const [selectedAccount, setSelectedAccount] = useState(null);
+  
+  // Mock data loading effect
+  useEffect(() => {
+    // Simulate API call
+    setTimeout(() => {
+      setAccounts([
+        {
+          id: 1,
+          type: 'Savings',
+          number: '50001234567',
+          balance: 125000.00,
+          currency: '₹',
+          interestRate: 3.5,
+          transactions: []
+        },
+        {
+          id: 2,
+          type: 'Current',
+          number: '10009876543',
+          balance: 75000.00,
+          currency: '₹',
+          transactions: []
+        },
+        {
+          id: 3,
+          type: 'Loan',
+          number: '30001598742',
+          balance: 500000.00,
+          currency: '₹',
+          interestRate: 8.5,
+          dueDate: '2025-08-15',
+          transactions: []
+        }
+      ]);
       
-      {/* Main Features Section */}
-      <section id="create" className="py-16 px-4 sm:px-6 lg:px-8 bg-surface-50 dark:bg-surface-900">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold text-surface-900 dark:text-white mb-4">
-              Create Your Culinary Masterpiece
-            </h2>
-            <p className="max-w-2xl mx-auto text-surface-600 dark:text-surface-300">
-              Share your favorite recipes with the world. Our easy-to-use recipe creator helps you format your culinary creations beautifully.
-            </p>
-          </div>
+      setTransactions([
+        {
+          id: 1,
+          title: 'Salary Deposit',
+          amount: 50000.00,
+          date: '2023-08-01',
+          type: 'credit',
+          category: 'deposit',
+          accountId: 1
+        },
+        {
+          id: 2,
+          title: 'Rent Payment',
+          amount: 15000.00,
+          date: '2023-08-02',
+          type: 'debit',
+          category: 'payment',
+          accountId: 2
+        },
+        {
+          id: 3,
+          title: 'Grocery Shopping',
+          amount: 2500.00,
+          date: '2023-08-03',
+          type: 'debit',
+          category: 'payment',
+          accountId: 2
+        },
+        {
+          id: 4,
+          title: 'Transfer to Savings',
+          amount: 10000.00,
+          date: '2023-08-04',
+          type: 'debit',
+          category: 'transfer',
+          accountId: 2
+        },
+        {
+          id: 5,
+          title: 'Loan EMI Payment',
+          amount: 12500.00,
+          date: '2023-08-05',
+          type: 'debit',
+          category: 'loan',
+          accountId: 1
+        }
+      ]);
+      
+      setLoading(false);
+    }, 1500);
+  }, []);
+  
+  const handleViewAccountDetails = (account) => {
+    setSelectedAccount(account);
+    setShowAccountDetails(true);
+  };
+  
+  const closeAccountDetails = () => {
+    setShowAccountDetails(false);
+    setSelectedAccount(null);
+  };
+  
+  // Handler for loan application
+  const handleLoanApplication = (type) => {
+    alert(`Navigating to ${type} loan application form`);
+    // In a real implementation, this would navigate to the loan application page
+    // window.location.href = `/loans/apply?type=${type}`;
+  };
+        <motion.h1 
+          initial={{ opacity: 0, y: -20 }}
+    <div className="space-y-8">
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-12">
+          <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+          <p className="text-gray-600">Loading your financial information...</p>
+        </div>
+      ) : (
+        <>
+          {/* Account Overview Section */}
+          <section>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-gray-900">My Accounts</h2>
+              <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">View All</button>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {accounts.map(account => (
+                <AccountCard 
+                  key={account.id} 
+                  account={account} 
+                  onViewDetails={handleViewAccountDetails}
+                />
+              ))}
+              
+              <div className="bg-blue-50 rounded-lg p-4 border border-blue-100 flex flex-col justify-center items-center text-center">
+                <div className="p-3 rounded-full bg-blue-100 text-blue-600 mb-3">
+                  {getIcon('PiggyBank', { size: 24 })}
+                </div>
+                <h3 className="font-medium text-gray-900 mb-1">Open a New Account</h3>
+                <p className="text-sm text-gray-600 mb-3">Start saving or get a loan with competitive rates</p>
+                <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                  Get Started
+                </button>
+              </div>
+            </div>
+          </section>
           
           <MainFeature />
-        </div>
-      </section>
-      
-      {/* Categories Section */}
-      <section id="categories" className="py-16 px-4 sm:px-6 lg:px-8 bg-white dark:bg-surface-800">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold text-surface-900 dark:text-white mb-4">
-              Explore Recipe Categories
-            </h2>
-            <p className="max-w-2xl mx-auto text-surface-600 dark:text-surface-300">
-              Discover recipes organized by category, from hearty breakfasts to delectable desserts.
-            </p>
-          </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {recipeCategories.map(category => (
-              <CategoryCard key={category.id} category={category} />
-            ))}
-          </div>
+          {/* Recent Transactions Section */}
+          <section>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-gray-900">Recent Transactions</h2>
+              <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">View All</button>
+            </div>
+            
+            <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-100">
+              {transactions.length > 0 ? (
+                <div>
+                  {transactions.slice(0, 5).map(transaction => (
+                    <TransactionItem key={transaction.id} transaction={transaction} />
+                  ))}
+                  {transactions.length > 5 && (
+                    <div className="text-center pt-4">
+                      <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                        Load More Transactions
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">No recent transactions to display</p>
+                </div>
+              )}
+            </div>
+          </section>
+          
+          {/* Loan Services Section */}
+          <section>
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Loan Services</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <BankingFeature 
+                icon={getIcon('Home', { size: 24 })}
+                title="Home Loans"
+                description="Realize your dream of owning a home with our competitive interest rates and flexible repayment options."
+                action={() => handleLoanApplication('home')}
+                color="blue"
+              />
+              
+              <BankingFeature 
+                icon={getIcon('Car', { size: 24 })}
+                title="Vehicle Loans"
+                description="Drive away in your dream vehicle with easy financing and quick approval process."
+                action={() => handleLoanApplication('vehicle')}
+                color="green"
+              />
+              
+              <BankingFeature 
+                icon={getIcon('Star', { size: 24 })}
+                title="Gold Loans"
+                description="Get immediate funds by leveraging your gold assets with attractive interest rates."
+                action={() => handleLoanApplication('gold')}
+                color="amber"
+              />
+            </div>
+          </section>
+          
+          {/* Security Features Section */}
+          <section>
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Security Features</h2>
+            
+            <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="flex">
+                  <div className="p-2 rounded-full bg-blue-50 text-blue-600 mr-3 h-fit">
+                    {getIcon('Fingerprint', { size: 20 })}
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-gray-900 mb-1">Biometric Authentication</h3>
+                    <p className="text-sm text-gray-600">Secure your account with fingerprint or face recognition.</p>
+                  </div>
+                </div>
+                
+                <div className="flex">
+                  <div className="p-2 rounded-full bg-blue-50 text-blue-600 mr-3 h-fit">
+                    {getIcon('ShieldCheck', { size: 20 })}
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-gray-900 mb-1">Two-Factor Authentication</h3>
+                    <p className="text-sm text-gray-600">Add an extra layer of security to your account.</p>
+                  </div>
+                </div>
+                
+                <div className="flex">
+                  <div className="p-2 rounded-full bg-blue-50 text-blue-600 mr-3 h-fit">
+                    {getIcon('Lock', { size: 20 })}
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-gray-900 mb-1">Instant Card Freeze</h3>
+                    <p className="text-sm text-gray-600">Temporarily block your card with a single tap if lost.</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-6 text-center">
+                <button className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
+                  Manage Security Settings
+                </button>
+              </div>
+            </div>
+          </section>
+          
+          {/* Customer Support Section */}
+          <section>
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Need Help?</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100 flex items-center">
+                <div className="p-3 rounded-full bg-blue-50 text-blue-600 mr-4">
+                  {getIcon('MessageSquare', { size: 24 })}
+                </div>
+                <div>
+                  <h3 className="font-medium text-gray-900 mb-1">Chat with Us</h3>
+                  <p className="text-sm text-gray-600 mb-3">Get instant support from our customer service team.</p>
+                  <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                    Start Chat
+                  </button>
+                </div>
+              </div>
+              
+              <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100 flex items-center">
+                <div className="p-3 rounded-full bg-blue-50 text-blue-600 mr-4">
+                  {getIcon('PhoneCall', { size: 24 })}
+                </div>
+                <div>
+                  <h3 className="font-medium text-gray-900 mb-1">Call Us</h3>
+                  <p className="text-sm text-gray-600 mb-3">Speak directly with our customer support representatives.</p>
+                  <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                    Call Now
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+        </>
+      )}
+      
+      {/* Account Details Modal */}
+      {showAccountDetails && selectedAccount && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full max-h-[80vh] overflow-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold text-gray-900">{selectedAccount.type} Account Details</h2>
+                <button 
+                  onClick={closeAccountDetails}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              
+              <div className="mb-6">
+                <div className="bg-blue-50 p-4 rounded-lg text-center mb-4">
+                  <p className="text-sm text-gray-600 mb-1">Available Balance</p>
+                  <p className="text-3xl font-bold text-gray-900">{selectedAccount.currency} {selectedAccount.balance.toLocaleString()}</p>
+                </div>
+                
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Account Number</span>
+                    <span className="font-medium text-gray-900">•••• {selectedAccount.number.slice(-4)}</span>
+                  </div>
+                  
+                  {selectedAccount.interestRate && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Interest Rate</span>
+                      <span className="font-medium text-gray-900">{selectedAccount.interestRate}%</span>
+                    </div>
+                  )}
+                  
+                  {selectedAccount.dueDate && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Due Date</span>
+                      <span className="font-medium text-gray-900">{new Date(selectedAccount.dueDate).toLocaleDateString()}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
+                  View Transactions
+                </button>
+                
+                <button className="w-full border border-blue-600 text-blue-600 hover:bg-blue-50 font-medium py-2 px-4 rounded-lg transition duration-300">
+                  Download Statement
+                </button>
+              </div>
+            </div>
+        >
+          <a 
+      )}
         </div>
       </section>
       
-      {/* Featured Recipes Section */}
+  
       <section id="latest" className="py-16 px-4 sm:px-6 lg:px-8 bg-surface-50 dark:bg-surface-900">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center mb-10">

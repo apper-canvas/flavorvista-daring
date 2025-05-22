@@ -1,37 +1,87 @@
-import { useState, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { toast } from 'react-toastify';
+import React, { useState } from 'react';
 import { getIcon } from '../utils/iconUtils';
 
-export default function MainFeature() {
-  // Form states
-  const [recipeTitle, setRecipeTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('');
-  const [prepTime, setPrepTime] = useState('');
-  const [cookTime, setCookTime] = useState('');
-  const [servings, setServings] = useState('');
-  const [videoUrl, setVideoUrl] = useState('');
-  const [ingredients, setIngredients] = useState(['']);
-  const [instructions, setInstructions] = useState(['']);
-  const [imagePreview, setImagePreview] = useState(null);
-  
-  // UI states
-  const [activeStep, setActiveStep] = useState(1);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
-  const fileInputRef = useRef(null);
-  
-  // Icons
-  const PlusIcon = getIcon('plus');
-  const MinusIcon = getIcon('minus');
+const BankingFeature = ({ icon, title, description, action, color = "blue" }) => {
+  const colorClasses = {
+    blue: "bg-blue-50 text-blue-700 border-blue-200",
+    green: "bg-green-50 text-green-700 border-green-200",
+    amber: "bg-amber-50 text-amber-700 border-amber-200",
+    purple: "bg-purple-50 text-purple-700 border-purple-200"
+  };
+import { motion, AnimatePresence } from 'framer-motion';
+import { getIcon } from '../utils/iconUtils';
+    <div className={`border rounded-lg p-6 ${colorClasses[color]} transition-all hover:shadow-md`}>
+      <div className="flex flex-col h-full">
+        <div className="mb-4">
+          {icon}
+        </div>
+        <h3 className="text-xl font-bold mb-2">{title}</h3>
+        <p className="text-sm opacity-80 mb-4 flex-grow">{description}</p>
+        <div>
+          <button 
+            onClick={action} 
+            className={`inline-flex items-center text-sm font-medium hover:underline`}
+          >
+            Learn more
+            <span className="ml-1">{getIcon('ChevronRight', { size: 16 })}</span>
+          </button>
   const ImageIcon = getIcon('image');
-  const ChevronRight = getIcon('chevron-right');
-  const ChevronLeft = getIcon('chevron-left');
+      </div>
+    </div>
+  );
+};
+
+const QuickAction = ({ icon, label, onClick }) => {
+  return (
+    <button 
+      onClick={onClick}
+      className="flex flex-col items-center justify-center bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-all"
+    >
+      <div className="text-blue-600 mb-2">
+        {icon}
+      </div>
+      <span className="text-sm font-medium text-gray-700">{label}</span>
+    </button>
+  );
+};
+
+const MainFeature = () => {
+  const [activeTab, setActiveTab] = useState('accounts');
+
+  return (
+    <div className="space-y-8">
+      {/* Quick Actions */}
+      <div>
+        <h2 className="text-xl font-bold mb-4">Quick Actions</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <QuickAction 
+            icon={getIcon('ArrowLeftRight', { size: 28 })} 
+            label="Transfer Money" 
+            onClick={() => window.location.href = '/transfers'}
+          />
+          <QuickAction 
+            icon={getIcon('FileClock', { size: 28 })} 
+            label="Pay Bills" 
+            onClick={() => window.location.href = '/bills'}
+          />
+          <QuickAction 
+            icon={getIcon('Building', { size: 28 })} 
+            label="Apply for Loan" 
+            onClick={() => window.location.href = '/loans/apply'}
+          />
+          <QuickAction 
+            icon={getIcon('LifeBuoy', { size: 28 })} 
+            label="Get Support" 
+            onClick={() => window.location.href = '/support'}
+          />
+        </div>
   const CheckIcon = getIcon('check-circle');
   const ClockIcon = getIcon('clock');
   const UsersIcon = getIcon('users');
   const TagIcon = getIcon('tag');
+
+export { BankingFeature, QuickAction };
+export default MainFeature;
   const ListIcon = getIcon('list');
   const FileTextIcon = getIcon('file-text');
   const YoutubeIcon = getIcon('youtube');
